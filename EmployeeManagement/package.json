@@ -1,0 +1,23 @@
+{
+  "name": "employeemanagement",
+  "version": "1.0.0",
+  "description": "Employee Management Module for the Employee Patient Management System",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "tsc",
+    "start": "tsc & node .",
+    "dev": "tsc -w & nodemon ."
+  },
+  "author": "Josue Morales",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.3"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.13",
+    "@types/node": "^17.0.23",
+    "nodemon": "^2.0.15",
+    "typescript": "^4.6.3"
+  }
+}
