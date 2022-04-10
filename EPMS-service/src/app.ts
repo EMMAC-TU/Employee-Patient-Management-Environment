@@ -1,24 +1,11 @@
-import cors from "cors"
-import express = require('express');
-import cookieParser = require('cookie-parser');
-const version = ""
+import { ExpressDriver } from "./drivers/ExpressDriver";
+import * as http from "http";
 
-export class ExpressDriver {
-    public static app = express();
-    
-    public static build() {
-        return this.buildDriver();
-    }
+const app = ExpressDriver.build();
+const server = http.createServer(app);
 
-    private static buildDriver() {
-        this.app.use(express.json());
-        this.app.use(cors({ origin: true, credentials: true }))
-        this.initServer();
-    }
+const PORT = process.env.PORT || 3000;
 
-    private static initServer() {
-        this.app.get("/", (req, res) => {
-            res.json({ message: `Welcome to the Employee-Patient-Management-Service Version ${version}`});
-        });
-    }
-}
+server.listen(PORT,async () => {
+    console.log(`EPMS started at http://localhost${ PORT }`);
+});
