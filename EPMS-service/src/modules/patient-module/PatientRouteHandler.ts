@@ -10,6 +10,6 @@ export class PatientRouteHandler {
     }
 
     static getPatients(req: Request, res: Response) {
-        res.json( {patients: "ALL Patients" });
+        res.json( {patients: "ALL Patients" } );
     }
 }

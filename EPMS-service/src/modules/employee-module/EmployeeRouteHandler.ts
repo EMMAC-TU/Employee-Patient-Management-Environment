@@ -13,6 +13,7 @@ export class EmployeeRouteHandler {
         const router = Router();
 
         router.get("/employees", this.getEmployees);
+        router.get('/employees/:id');
 
         return router;
     }
@@ -24,6 +25,6 @@ export class EmployeeRouteHandler {
      * @param next 
      */
     static getEmployees(req: Request, res: Response, next: NextFunction) {
-        res.json({ message: "Hello world" });
+        res.json({ m1: "Hello world" });
     }
 }
