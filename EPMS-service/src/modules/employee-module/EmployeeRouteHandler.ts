@@ -12,9 +12,12 @@ export class EmployeeRouteHandler {
     public static buildRouter() {
         const router = Router();
 
-        router.get("/employees", this.getEmployees);
+        router.get('/employees', this.getEmployees);
         router.get('/employees/:id');
-
+        router.get('/employes/search');
+        router.post('/employees');
+        router.patch('/employees/:id');
+        
         return router;
     }
 

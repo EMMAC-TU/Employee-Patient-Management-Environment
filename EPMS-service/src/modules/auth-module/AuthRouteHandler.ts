@@ -4,7 +4,10 @@ export class AuthRouteHandler {
     public static buildRouter() {
         const router = Router();
 
-        router.get("/keys", this.generateKeyPairs);
+        router.get('/keys', this.generateKeyPairs);
+        router.post('/auth/password');
+        router.post('/auth/login');
+        router.post('/auth/employees');
 
         return router;
     }
