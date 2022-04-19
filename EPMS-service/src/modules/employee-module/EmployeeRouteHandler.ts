@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response, Router } from "express";
+import { EmployeeDatastore } from "./datastore/EmployeeDatastore";
 
 /**
  * 
@@ -27,7 +28,8 @@ export class EmployeeRouteHandler {
      * @param res 
      * @param next 
      */
-    static getEmployees(req: Request, res: Response, next: NextFunction) {
-        res.json({ m1: "Hello world" });
+    static async getEmployees(req: Request, res: Response, next: NextFunction) {
+        const emp = await EmployeeDatastore.getInstance().getEmployees();
+        res.json({ emp });
     }
 }
