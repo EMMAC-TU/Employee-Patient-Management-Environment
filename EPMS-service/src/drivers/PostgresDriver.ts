@@ -33,6 +33,9 @@ export class PostgresDriver {
         }
     }
 
+    /**
+     * 
+     */
     static get client(): Client {
         if (!this._client) {
             throw new Error("Connection to PostgresDB has not been established");

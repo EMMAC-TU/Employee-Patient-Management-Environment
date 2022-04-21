@@ -1,38 +1,103 @@
-import { Address } from "../types/Address";
-
 export interface IEmployee {
     /**
      * 
      */
-    userID: string;
+    userid?: string;
 
     /**
      * 
      */
-    firstName: string;
+    employeeid?: string;
 
     /**
      * 
      */
-    lastName: string;
+    password?: string;
 
     /**
      * 
      */
-    email: string;
+    firstname?: string;
 
     /**
      * 
      */
-    address: Address,
+    middleinitial?: string;
 
     /**
      * 
      */
-    position: string;
+    lastname?: string;
 
     /**
      * 
      */
-    phoneNumber: string;
+    dateofbirth?: string;
+
+    /**
+     * 
+     */
+    email?: string;
+
+    /**
+     * 
+     */
+    streetname1: string;
+
+    /**
+     * 
+     */
+    city: string;
+
+    /**
+     * 
+     */
+    state: string;
+
+    /**
+     * 
+     */
+    zipcode: string;
+
+    /**
+     * 
+     */
+    country: string;
+
+    /**
+     * 
+     */
+    streetname2?: string;
+
+    /**
+     * 
+     */
+    position?: string;
+
+    /**
+     * 
+     */
+    homephone?: string;
+
+    /**
+     * 
+     */
+    mobilephone?: string
+
+    /**
+     * 
+     */
+    workphone?: string;
+
+    /**
+     * 
+     */
+    startdate?: string;
+
+    /**
+     * 
+     */
+    enddate?: string;
+
 }
+
