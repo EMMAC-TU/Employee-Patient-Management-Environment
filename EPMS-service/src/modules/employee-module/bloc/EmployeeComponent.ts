@@ -34,6 +34,10 @@ export class EmployeeComponent implements IEmployeeComponent{
         return emp[0] as Employee
     }
 
+    /**
+     * 
+     * @returns 
+     */
     async getEmployees(): Promise<Employee[]> {
         return await EmployeeDatastore.getInstance().getEmployees();
     }
@@ -53,7 +57,7 @@ export class EmployeeComponent implements IEmployeeComponent{
         newEmployee.password =  await hasher.saltPassword(newEmployee.password);
         const employee = new Employee(newEmployee);
 
-       await EmployeeDatastore.getInstance().createEmployee(employee);
+        await EmployeeDatastore.getInstance().createEmployee(employee);
 
         return employee;
     }
@@ -63,8 +67,12 @@ export class EmployeeComponent implements IEmployeeComponent{
      * @param employeeId 
      * @param updatedEmployee 
      */
-    updateEmployee(employeeId: string, updatedEmployee: Partial<Employee>): Promise<void> {
-        throw new Error("Method not implemented.");
+    async updateEmployee(employeeId: string, updatedEmployee: Partial<Employee>): Promise<void> {
+        if (!EmployeeDatastore.getInstance().doesEmployeeExist(employeeId)) {
+            throw new Error("Employee does not exist");
+        }
+        this.verifyUpdateFields(updatedEmployee);
+        await EmployeeDatastore.getInstance().updateEmployee(employeeId, updatedEmployee);
     }
 
     /**
@@ -75,6 +83,11 @@ export class EmployeeComponent implements IEmployeeComponent{
         throw new Error("Method not implemented.");
     }
 
+    /**
+     * 
+     * @param newEmp 
+     * @returns 
+     */
     private isMissingRequiredFields(newEmp: EmployeeCreation) {
         return !( newEmp.streetname1 &&
             newEmp.city &&
@@ -90,6 +103,19 @@ export class EmployeeComponent implements IEmployeeComponent{
             newEmp.password &&
             newEmp.position)
         
+    }
+
+    /**
+     * 
+     * @param uEmp 
+     */
+    private verifyUpdateFields(uEmp: Partial<Employee>) {
+        const cantUpdateFields = ['employeeid'];
+        Object.keys(uEmp).forEach((key, i) => {
+            if (cantUpdateFields.includes(key)){
+                throw new Error(`Cannot update ${key}`);
+            }
+        })
     }
 
     /**

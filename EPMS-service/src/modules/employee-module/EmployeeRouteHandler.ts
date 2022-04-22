@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response, Router } from "express";
+import { Employee } from "../../shared/entity/Employee";
 import { EmployeeCreation } from "../../shared/types/EmployeeCreation";
 import { EmployeeComponent } from "./bloc/EmployeeComponent";
 import { EmployeeDatastore } from "./datastore/EmployeeDatastore";
@@ -19,9 +20,24 @@ export class EmployeeRouteHandler {
         router.get('/employees/:id', this.getEmployee);
         router.get('/employes/search');
         router.post('/employees', this.createEmployee);
-        router.patch('/employees/:id');
+        router.patch('/employees/:id', this.updateEmployee);
         
         return router;
+    }
+
+    static async updateEmployee(req: Request, res: Response, next: NextFunction) {
+        try {
+            if (!req.params.id) {
+                throw new Error("Employee ID Required");
+            }
+            const employeeID = req.params.id;
+            const employee = req.body as Partial<Employee>;
+            await EmployeeComponent.getInstance().updateEmployee(employeeID,employee);
+            res.send(200);
+        } catch (err) {
+            console.log(err);
+            res.send("There was an error")
+        }
     }
 
     static async getEmployee(req: Request, res: Response, next: NextFunction) {
