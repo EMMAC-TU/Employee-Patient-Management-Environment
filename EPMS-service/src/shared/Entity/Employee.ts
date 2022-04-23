@@ -28,7 +28,7 @@ export class Employee implements IEmployee {
         this.userid = info.userid;
         this.password = info.password; 
         this.firstname = info.firstname;
-        this.lastname = info.lastName;
+        this.lastname = info.lastname;
         this.email = info.email.toLowerCase();
         this.streetname1 = info.streetname1;
         this.city = info.city;

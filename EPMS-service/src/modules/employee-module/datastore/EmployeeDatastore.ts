@@ -87,18 +87,29 @@ export class EmployeeDatastore implements IEmployeeDatastore {
      * @returns 
      */
     buildCreateEmployeeQuery(emp: Employee) {
-        const query = {
-            text: "INSERT INTO \
-                employee(employeeid, firstname, middleinitial,lastname, \
-                    dateofbirth, startdate, enddate, homephone, mobilephone, \
-                    workphone, email, position, userid, password, streetname1, \
-                    streetname2, zipcode, city, state, country) \
-                values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)",
-            values: [emp.employeeid, emp.firstname, emp.middleinitial, emp.lastname, emp.dateofbirth, emp.startdate,
-                null, emp.homephone, emp.mobilephone, emp.workphone, emp.email, emp.position, emp.userid, emp.password, 
-                emp.streetname1, emp.streetname2, emp.zipcode, emp.city, emp.state, emp.country]
+        var query = ['INSERT INTO employee(']
+        
+        var keys: string[] = [];
+        var placeholders: string[] = [];
+        var vals: string[] = [];
+
+        Object.entries(emp).forEach((value, index) =>{
+            keys.push(value[0]);
+            placeholders.push(`$${index+1}`);
+            vals.push(value[1]);
+        });
+
+        query.push(keys.join(','));
+        query.push(') VALUES('); // Close the keys list
+        query.push(placeholders.join(','));
+        query.push(')');
+
+        const queryobj = {
+            text: query.join(' '),
+            values: vals
         }
-        return query
+        console.log(queryobj);
+        return queryobj
     }
 
     /**

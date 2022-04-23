@@ -3,7 +3,7 @@ export type EmployeeCreation = {
     password: string;
     firstname: string;
     middleinitial: string;
-    lastName: string;
+    lastname: string;
     dateofbirth: string;
     email: string;
     position: string;

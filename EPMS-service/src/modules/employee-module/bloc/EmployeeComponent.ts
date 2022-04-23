@@ -97,7 +97,7 @@ export class EmployeeComponent implements IEmployeeComponent{
             newEmp.dateofbirth && 
             newEmp.email && 
             newEmp.firstname && 
-            newEmp.lastName && 
+            newEmp.lastname && 
             newEmp.userid &&
             newEmp.middleinitial &&
             newEmp.password &&
