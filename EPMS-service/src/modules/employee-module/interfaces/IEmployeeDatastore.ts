@@ -1,11 +1,14 @@
+import { SearchQuery } from "../../../shared/types/SearchQuery";
 import { Employee } from "../../../shared/entity/Employee";
 
 export interface IEmployeeDatastore {
     /**
-     * 
-     * @param employeeId 
+     * @param query
      */
-    doesEmployeeExist(employeeId: string): Promise<boolean>;
+    doesEmployeeExist(query: {
+        field: "employeeid" | "userid" | 'email'
+        value: string
+    }): Promise<boolean>;
 
     /**
      * 
@@ -36,5 +39,5 @@ export interface IEmployeeDatastore {
      * 
      * @param query 
      */
-    searchEmployees(query: string): Promise<Employee[]>
+    searchEmployees(query: SearchQuery): Promise<Employee[]>
 }

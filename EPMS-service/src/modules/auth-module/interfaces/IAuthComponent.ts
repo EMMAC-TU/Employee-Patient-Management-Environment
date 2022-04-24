@@ -1,3 +1,4 @@
+import { IEmployee } from "../../../shared/interfaces/IEmployee";
 import { Employee } from "../../../shared/entity/Employee";
 
 export interface IAuthComponent {
@@ -20,7 +21,7 @@ export interface IAuthComponent {
      * @param userId 
      * @param password 
      */
-    login(userId: string, password: string): Promise<Employee>;
+    login(userId: string, password: string):Promise<{ employee: IEmployee, token:string }>;
 
     /**
      * 

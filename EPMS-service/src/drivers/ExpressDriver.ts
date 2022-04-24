@@ -5,6 +5,7 @@ import cors from "cors";
 import helmet from 'helmet';
 import express = require('express');
 import cookieParser = require('cookie-parser');
+import { HttpErrorParser } from "../middlewares/HttpErrorParser";
 
 const version = require('../../package.json').version
 
@@ -25,7 +26,7 @@ export class ExpressDriver {
         this.app.use(EmployeeRouteHandler.buildRouter());
         this.app.use(AuthRouteHandler.buildRouter());
         this.app.use(PatientRouteHandler.buildRouter());
-        
+        this.app.use(HttpErrorParser);
         return this.app;
     }
 

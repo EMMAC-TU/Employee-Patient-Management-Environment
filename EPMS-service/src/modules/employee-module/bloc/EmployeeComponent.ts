@@ -3,6 +3,9 @@ import { IEmployeeComponent } from "../interfaces/IEmployeeComponent";
 import { EmployeeDatastore } from "../datastore/EmployeeDatastore";
 import { EmployeeCreation } from "../../../shared/types/EmployeeCreation";
 import { BcryptDriver } from "../../../drivers/BcryptDriver";
+import { validatePasswordCriteria, validateEmailCriteria } from "../../../shared/functions/validator";
+import { SearchQuery } from "../../../shared/types/SearchQuery";
+import { ResourceError, ResourceErrorReason } from "../../../shared/types/Errors";
 
 const POSITIONS = {
     ADMIN: 'administrator',
@@ -29,7 +32,7 @@ export class EmployeeComponent implements IEmployeeComponent{
     async getEmployee(employeeID: string): Promise<Employee> {
         const emp = await EmployeeDatastore.getInstance().getEmployee(employeeID);
         if (emp.length == 0) {
-            throw new Error("Employee Not Found");
+            throw new ResourceError("Employee Not Found", ResourceErrorReason.NOT_FOUND);
         }
         return emp[0] as Employee
     }
@@ -47,12 +50,17 @@ export class EmployeeComponent implements IEmployeeComponent{
      * @param newEmployee 
      */
     async createEmployee(newEmployee: EmployeeCreation): Promise<Employee> {
-        console.log(newEmployee)
         if (this.isMissingRequiredFields(newEmployee)) {
-            throw new Error("Missing a field");
+            throw new ResourceError("Missing a field", ResourceErrorReason.BAD_REQUEST);
         }
-        this.validateInput(newEmployee);
+        if (await EmployeeDatastore.getInstance().doesEmployeeExist({ field: 'userid', value: newEmployee.userid })) {
+            throw new ResourceError("Username already exists", ResourceErrorReason.BAD_REQUEST);
+        }
+        if (await EmployeeDatastore.getInstance().doesEmployeeExist({ field: 'email', value: newEmployee.email.toLowerCase() })) {
+            throw new ResourceError("Email already exists", ResourceErrorReason.BAD_REQUEST);
+        }
 
+        this.validateInput(newEmployee);
         const hasher = new BcryptDriver();
         newEmployee.password =  await hasher.saltPassword(newEmployee.password);
         const employee = new Employee(newEmployee);
@@ -68,8 +76,8 @@ export class EmployeeComponent implements IEmployeeComponent{
      * @param updatedEmployee 
      */
     async updateEmployee(employeeId: string, updatedEmployee: Partial<Employee>): Promise<void> {
-        if (!EmployeeDatastore.getInstance().doesEmployeeExist(employeeId)) {
-            throw new Error("Employee does not exist");
+        if (!(await EmployeeDatastore.getInstance().doesEmployeeExist({ field: 'employeeid', value: employeeId }))) {
+            throw new ResourceError("Employee does not exist", ResourceErrorReason.NOT_FOUND);
         }
         this.verifyUpdateFields(updatedEmployee);
         await EmployeeDatastore.getInstance().updateEmployee(employeeId, updatedEmployee);
@@ -79,8 +87,8 @@ export class EmployeeComponent implements IEmployeeComponent{
      * 
      * @param query 
      */
-    findEmployees(query: string): Promise<Employee[]> {
-        throw new Error("Method not implemented.");
+    async findEmployees(query: SearchQuery): Promise<Employee[]> {
+        return await EmployeeDatastore.getInstance().searchEmployees(query);
     }
 
     /**
@@ -102,7 +110,6 @@ export class EmployeeComponent implements IEmployeeComponent{
             newEmp.middleinitial &&
             newEmp.password &&
             newEmp.position)
-        
     }
 
     /**
@@ -113,7 +120,7 @@ export class EmployeeComponent implements IEmployeeComponent{
         const cantUpdateFields = ['employeeid'];
         Object.keys(uEmp).forEach((key, i) => {
             if (cantUpdateFields.includes(key)){
-                throw new Error(`Cannot update ${key}`);
+                throw new ResourceError(`Cannot update ${key}`, ResourceErrorReason.FORBIDDEN);
             }
         })
     }
@@ -123,32 +130,32 @@ export class EmployeeComponent implements IEmployeeComponent{
      * @param newEmp 
      */
     private validateInput(newEmp: EmployeeCreation) {
+        validatePasswordCriteria(newEmp.password);
+        validateEmailCriteria(newEmp.email);
         if(newEmp.middleinitial.length > 1){
-            throw new Error("Middle Initial Should be Length 1");
+            throw new ResourceError("Middle Initial Should be Length 1", ResourceErrorReason.BAD_REQUEST);
         }
-        if(!newEmp.email
-        .toLowerCase()
-        .match(
-          /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-        )){
-            throw new Error("Email is not formatted correctly");
-        }
+        
         if(newEmp.position !== POSITIONS.ADMIN &&
             newEmp.position !== POSITIONS.DOCTOR &&
             newEmp.position !== POSITIONS.NURSE &&
             newEmp.position !== POSITIONS.RECEPTIONIST &&
             newEmp.position !== POSITIONS.VENDOR){
-            throw new Error("Position of employee is not valid");
+            throw new ResourceError("Position of employee is not valid", ResourceErrorReason.BAD_REQUEST);
         }
         if(newEmp.homephone && !newEmp.homephone.match(/^\d{10}$/)){
-            throw new Error("Home phone number is not formatted correctly");
+            throw new ResourceError("Home phone number is not formatted correctly", ResourceErrorReason.BAD_REQUEST);
         }
         if(newEmp.mobilephone && !newEmp.mobilephone.match(/^\d{10}$/)){
-            throw new Error("Mobile phone number is not formatted correctly");
+            throw new ResourceError("Mobile phone number is not formatted correctly", ResourceErrorReason.BAD_REQUEST);
         }
         if(newEmp.workphone && !newEmp.workphone.match(/^\d{10}$/)){
-            throw new Error("Work phone number is not formatted correctly");
+            throw new ResourceError("Work phone number is not formatted correctly", ResourceErrorReason.BAD_REQUEST);
         }
         return true
     }
+
+    
+
+
 }

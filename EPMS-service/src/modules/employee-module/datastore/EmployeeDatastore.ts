@@ -1,7 +1,8 @@
-import { QueryConfig } from "../../../shared/types/QueryConfig";
+import { SearchQuery } from "../../../shared/types/SearchQuery";
 import { PostgresDriver } from "../../../drivers/PostgresDriver";
 import { Employee } from "../../../shared/entity/Employee";
 import { IEmployeeDatastore } from "../interfaces/IEmployeeDatastore";
+import { buildCreateQuery, buildDoesFieldExistQuery, buildGetEntityQuery, buildSearchQuery, buildUpdateEntityQuery } from "../../../shared/functions/BuildQuery";
 
 export class EmployeeDatastore implements IEmployeeDatastore {
     private client = PostgresDriver.client
@@ -15,12 +16,16 @@ export class EmployeeDatastore implements IEmployeeDatastore {
     }
     
     /**
-     * 
-     * @param employeeId 
-     * @returns 
+     * @param query
+     * @returns
      */
-    async doesEmployeeExist(employeeId: string): Promise<boolean> {
-        return (await this.getEmployee(employeeId)).length > 0;
+    async doesEmployeeExist(query: {
+        field: "employeeid" | "userid" | 'email'
+        value: string
+    }): Promise<boolean> {
+        const builtQuery = buildDoesFieldExistQuery('employee', query);
+        console.log((await this.client.query(builtQuery)).rows)
+        return (await this.client.query(builtQuery)).rows.length !== 0;
     }
     
     /**
@@ -29,7 +34,7 @@ export class EmployeeDatastore implements IEmployeeDatastore {
      * @returns 
      */
     async getEmployee(employeeId: string): Promise<Employee[]> {
-        const query = this.buildGetEmployeeQuery(true, employeeId);
+        const query = buildGetEntityQuery('employee', true, employeeId);
         const { rows } = await this.client.query(query)
         return rows;
     }
@@ -39,7 +44,7 @@ export class EmployeeDatastore implements IEmployeeDatastore {
      * @returns 
      */
     async getEmployees(): Promise<Employee[]> {
-        const query = this.buildGetEmployeeQuery(false);
+        const query = buildGetEntityQuery('employee');
         const { rows } = await this.client.query(query);
         return rows
     }
@@ -50,17 +55,11 @@ export class EmployeeDatastore implements IEmployeeDatastore {
      * @param updateEmployee 
      */
     async updateEmployee(employeeId: string, updateEmployee: Partial<Employee>): Promise<void> {
-        const query = {
-            text: this.buildUpdateEmployeeQuery(employeeId, updateEmployee),
-        }
-        const values : string[] = [];
-        Object.values(updateEmployee).forEach( (val, i) => {
-            values.push(val);
-        });
-        values.push(employeeId);
+        const query = buildUpdateEntityQuery('employee', employeeId, updateEmployee);
         
-        const { rows } = await this.client.query(query, values);
+        const { rows } = await this.client.query(query);
    
+        return rows[0];
     }
 
     /**
@@ -68,96 +67,20 @@ export class EmployeeDatastore implements IEmployeeDatastore {
      * @param newEmployee 
      */
     async createEmployee(newEmployee: Employee): Promise<void> {
-        const query = this.buildCreateEmployeeQuery(newEmployee);
+        const query = buildCreateQuery(newEmployee);
         const res = await this.client.query(query);
-        console.log(res);
+        console.log(res.rows);
     }
 
     /**
      * 
-     * @param query 
+     * @param searchQuery 
      */
-    async searchEmployees(query: string): Promise<Employee[]> {
-        throw new Error("Method not implemented.");
-    }
-    
-    /**
-     * 
-     * @param emp 
-     * @returns 
-     */
-    buildCreateEmployeeQuery(emp: Employee) {
-        var query = ['INSERT INTO employee(']
-        
-        var keys: string[] = [];
-        var placeholders: string[] = [];
-        var vals: string[] = [];
-
-        Object.entries(emp).forEach((value, index) =>{
-            keys.push(value[0]);
-            placeholders.push(`$${index+1}`);
-            vals.push(value[1]);
-        });
-
-        query.push(keys.join(','));
-        query.push(') VALUES('); // Close the keys list
-        query.push(placeholders.join(','));
-        query.push(')');
-
-        const queryobj = {
-            text: query.join(' '),
-            values: vals
-        }
-        console.log(queryobj);
-        return queryobj
+    async searchEmployees(searchQuery: SearchQuery): Promise<Employee[]> {
+        const query = buildSearchQuery(searchQuery,  'employee');
+        const { rows } = await this.client.query(query);
+        console.log(rows);
+        return rows;
     }
 
-    /**
-     * 
-     * @param isIndividual 
-     * @param employeeId 
-     * @returns 
-     */
-    buildGetEmployeeQuery(isIndividual?: boolean, employeeId?: string){
-        let txt = "SELECT \
-        employeeid, firstname, middleinitial, lastname, dateofbirth, \
-        startdate, homephone, mobilephone, workphone, email, position, userid, \
-        streetname1, streetname2, zipcode, city, state, country \
-        FROM employee";
-        const query = {
-            text: isIndividual && employeeId ? txt += " WHERE employeeid = $1" : txt,
-            values: !employeeId ? undefined : [employeeId]
-        };
-        return query;
-    }
-
-    /**
-     * 
-     * @param employeeid 
-     * @param uEmp 
-     * @returns 
-     */
-    buildUpdateEmployeeQuery(employeeid: string, uEmp: Partial<Employee>) {
-        // Setup static beginning of query
-        var query = ['UPDATE employee'];
-        query.push('SET');
-        
-        // Create another array storing each set command
-        // and assigning a number value for parameterized query
-        var set:string[] = [];
-        let count = 0;
-        Object.keys(uEmp).forEach(function (key, i) {
-            set.push(key + ' = $' + (count + 1)); 
-            count++;
-        });
-        query.push(set.join(', '));
-        count++;
-        // Add the WHERE statement to look up by id
-        query.push('WHERE employeeid = $' + count );
-        
-        // Return a complete query string
-        return query.join(' ');
-          
-    }
-    
 }

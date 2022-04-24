@@ -1,3 +1,4 @@
+import { SearchQuery } from "../../../shared/types/SearchQuery";
 import { Employee } from "../../../shared/entity/Employee";
 
 export interface IEmployeeComponent {
@@ -26,5 +27,5 @@ export interface IEmployeeComponent {
      * 
      * @param query 
      */
-    findEmployees(query: string): Promise<Employee[]>;
+    findEmployees(query: SearchQuery): Promise<Employee[]>;
 }

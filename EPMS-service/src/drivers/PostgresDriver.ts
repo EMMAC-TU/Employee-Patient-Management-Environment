@@ -1,5 +1,6 @@
 import { Client } from 'pg';
 import * as dotenv from 'dotenv';
+import { ServiceError, ServiceErrorReason } from '../shared/types/Errors';
 
 dotenv.config()
 /**
@@ -38,7 +39,7 @@ export class PostgresDriver {
      */
     static get client(): Client {
         if (!this._client) {
-            throw new Error("Connection to PostgresDB has not been established");
+            throw new ServiceError("Connection to PostgresDB has not been established", ServiceErrorReason.INTERNAL);
         }
         return this._client
     }
