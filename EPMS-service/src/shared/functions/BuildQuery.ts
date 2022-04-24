@@ -4,14 +4,17 @@ import { SearchQuery } from "../types/SearchQuery";
 
 const employeeReturns = {
     searchResults: "employeeid, dateofbirth, lastname",
-    allInfo: "employeeid, firstname, middleinitial, lastname, dateofbirth, \
+    allInfo: "employeeid, firstname, middleinitial, lastname, gender, dateofbirth, \
     startdate, homephone, mobilephone, workphone, email, position, userid, \
     streetname1, streetname2, zipcode, city, state, country"
 };
 
 const patientReturns = {
-    searchResults: "patient, dateofbirth, lastname FROM patient",
-    allInfo: ""
+    searchResults: "patientid, dateofbirth, lastname FROM patient",
+    allInfo: "patientid, firstname, middleinitial, lastname, gender, dateofbirth, \
+    outpatient, height, weight, homephone, mobilephone, workphone, email, \
+    streetname1, streetname2, zipcode, city, state, country \
+    nok_firstname, nok_lastname, nok_mobilephone, insurance_companyname, insurance_memberid, insurance_groupnumber"
 };
 
 export function buildLoginQuery(userid: string) {
@@ -25,14 +28,14 @@ export function buildLoginQuery(userid: string) {
     }
 }
 
-export function buildGetEntityQuery(table: 'patient' | 'employee', isIndividual?: boolean, id?: string){
+export function buildGetEntityQuery(table: 'patient' | 'employee', id?: string){
     let query = [
         `SELECT 
         ${table === 'employee' ? employeeReturns.allInfo : patientReturns.allInfo}
         FROM ${table}`
     ]
     const val : string[] = [];
-    if (isIndividual && id){ 
+    if (id){ 
         query.push(`WHERE ${table}id = $1`);    
         val.push(id);
     }
@@ -156,7 +159,7 @@ export function buildSearchQuery(query: SearchQuery, table: 'employee' | 'patien
     return q;
 }
 
-export function buildDoesFieldExistQuery(table: 'employee' | 'table', query: {
+export function buildDoesFieldExistQuery(table: 'employee' | 'patient', query: {
     field: 'employeeid' | 'patientid' | 'userid' | 'email',
     value: string
 }) {
@@ -172,4 +175,17 @@ export function buildDoesFieldExistQuery(table: 'employee' | 'table', query: {
     buildquery.push(`${query.field}=$1`);
     console.log({ text: buildquery.join(' '), values: [query.value]})
     return { text: buildquery.join(' '), values: [query.value]} ;
+}
+
+export function buildPasswordQuery(employeeid: string): { text: string, values: string[] } {
+    return { text: 'SELECT password FROM employee WHERE employeeid=$1', values: [employeeid] }
+}
+
+export function buildUpdatePasswordQuery(employeeid: string, password: string): { text: string, values: string[] }{
+    return {
+        text: `UPDATE employee
+                SET password=$1
+                WHERE employeeid=$2`,
+        values: [password, employeeid]
+    };
 }

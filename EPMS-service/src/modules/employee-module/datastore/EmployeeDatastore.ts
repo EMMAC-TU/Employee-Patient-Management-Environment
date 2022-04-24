@@ -34,7 +34,7 @@ export class EmployeeDatastore implements IEmployeeDatastore {
      * @returns 
      */
     async getEmployee(employeeId: string): Promise<Employee[]> {
-        const query = buildGetEntityQuery('employee', true, employeeId);
+        const query = buildGetEntityQuery('employee', employeeId);
         const { rows } = await this.client.query(query)
         return rows;
     }

@@ -1,8 +1,6 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { ResourceErrorReason } from "../../shared/types/Errors";
 import { ResourceError } from "../../shared/types/Errors";
-import { generateToken } from "../../shared/functions/GenerateToken";
-import { EmployeeComponent } from "../employee-module/bloc/EmployeeComponent";
 import { AuthComponent } from "./bloc/AuthComponent";
 
 export class AuthRouteHandler {
@@ -10,11 +8,38 @@ export class AuthRouteHandler {
         const router = Router();
 
         router.get('/keys', this.generateKeyPairs);
-        router.post('/auth/password');
+        router.patch('/auth/password', this.changePassword);
         router.post('/auth/login', this.login);
         router.post('/auth/employees');
 
         return router;
+    }
+
+    static async changePassword(req: Request, res: Response, next: NextFunction) {
+        try {
+            const curr_password = req.body.password;
+            const employeeid = req.body.employeeid;
+            const new_password = req.body.newpassword;
+
+            if (!new_password) {
+                throw new ResourceError('New Password was not provided', ResourceErrorReason.BAD_REQUEST);
+            }
+            if (!curr_password) {
+                throw new ResourceError('Password was not Provided', ResourceErrorReason.BAD_REQUEST);
+            }
+            if (!employeeid) {
+                throw new ResourceError('Employeeid was not provided', ResourceErrorReason.BAD_REQUEST);
+            }
+
+            const arePasswordsSame = await AuthComponent.getInstance().doPasswordsMatch(employeeid, curr_password);
+            if (!arePasswordsSame) {
+                throw new ResourceError('Passwords do not match', ResourceErrorReason.BAD_REQUEST);
+            }
+            await AuthComponent.getInstance().updatePassword(employeeid, new_password);
+            res.sendStatus(200);
+        } catch (err) {
+            next(err);
+        }
     }
 
     static async login(req: Request, res: Response, next: NextFunction) {

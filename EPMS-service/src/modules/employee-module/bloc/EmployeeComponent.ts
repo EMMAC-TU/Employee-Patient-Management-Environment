@@ -3,7 +3,7 @@ import { IEmployeeComponent } from "../interfaces/IEmployeeComponent";
 import { EmployeeDatastore } from "../datastore/EmployeeDatastore";
 import { EmployeeCreation } from "../../../shared/types/EmployeeCreation";
 import { BcryptDriver } from "../../../drivers/BcryptDriver";
-import { validatePasswordCriteria, validateEmailCriteria } from "../../../shared/functions/validator";
+import { validatePasswordCriteria, validateEmailCriteria, validatePhoneNumbers, verifyUpdateFields } from "../../../shared/functions/validator";
 import { SearchQuery } from "../../../shared/types/SearchQuery";
 import { ResourceError, ResourceErrorReason } from "../../../shared/types/Errors";
 
@@ -79,7 +79,7 @@ export class EmployeeComponent implements IEmployeeComponent{
         if (!(await EmployeeDatastore.getInstance().doesEmployeeExist({ field: 'employeeid', value: employeeId }))) {
             throw new ResourceError("Employee does not exist", ResourceErrorReason.NOT_FOUND);
         }
-        this.verifyUpdateFields(updatedEmployee);
+        verifyUpdateFields(updatedEmployee, ['employeeid', 'startdate']);
         await EmployeeDatastore.getInstance().updateEmployee(employeeId, updatedEmployee);
     }
 
@@ -97,33 +97,15 @@ export class EmployeeComponent implements IEmployeeComponent{
      * @returns 
      */
     private isMissingRequiredFields(newEmp: EmployeeCreation) {
-        return !( newEmp.streetname1 &&
-            newEmp.city &&
-            newEmp.state &&
-            newEmp.zipcode &&
-            newEmp.country &&
+        return !(
             newEmp.dateofbirth && 
-            newEmp.email && 
             newEmp.firstname && 
             newEmp.lastname && 
             newEmp.userid &&
-            newEmp.middleinitial &&
             newEmp.password &&
             newEmp.position)
     }
 
-    /**
-     * 
-     * @param uEmp 
-     */
-    private verifyUpdateFields(uEmp: Partial<Employee>) {
-        const cantUpdateFields = ['employeeid'];
-        Object.keys(uEmp).forEach((key, i) => {
-            if (cantUpdateFields.includes(key)){
-                throw new ResourceError(`Cannot update ${key}`, ResourceErrorReason.FORBIDDEN);
-            }
-        })
-    }
 
     /**
      * 
@@ -132,7 +114,7 @@ export class EmployeeComponent implements IEmployeeComponent{
     private validateInput(newEmp: EmployeeCreation) {
         validatePasswordCriteria(newEmp.password);
         validateEmailCriteria(newEmp.email);
-        if(newEmp.middleinitial.length > 1){
+        if(newEmp.middleinitial && newEmp.middleinitial.length > 1){
             throw new ResourceError("Middle Initial Should be Length 1", ResourceErrorReason.BAD_REQUEST);
         }
         
@@ -143,15 +125,9 @@ export class EmployeeComponent implements IEmployeeComponent{
             newEmp.position !== POSITIONS.VENDOR){
             throw new ResourceError("Position of employee is not valid", ResourceErrorReason.BAD_REQUEST);
         }
-        if(newEmp.homephone && !newEmp.homephone.match(/^\d{10}$/)){
-            throw new ResourceError("Home phone number is not formatted correctly", ResourceErrorReason.BAD_REQUEST);
-        }
-        if(newEmp.mobilephone && !newEmp.mobilephone.match(/^\d{10}$/)){
-            throw new ResourceError("Mobile phone number is not formatted correctly", ResourceErrorReason.BAD_REQUEST);
-        }
-        if(newEmp.workphone && !newEmp.workphone.match(/^\d{10}$/)){
-            throw new ResourceError("Work phone number is not formatted correctly", ResourceErrorReason.BAD_REQUEST);
-        }
+        
+        validatePhoneNumbers(newEmp);
+        
         return true
     }
 

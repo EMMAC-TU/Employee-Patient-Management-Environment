@@ -32,6 +32,11 @@ export interface IEmployee {
     /**
      * 
      */
+    gender?: string;
+
+    /**
+     * 
+     */
     dateofbirth?: string;
 
     /**
@@ -42,27 +47,27 @@ export interface IEmployee {
     /**
      * 
      */
-    streetname1: string;
+    streetname1?: string;
 
     /**
      * 
      */
-    city: string;
+    city?: string;
 
     /**
      * 
      */
-    state: string;
+    state?: string;
 
     /**
      * 
      */
-    zipcode: string;
+    zipcode?: string;
 
     /**
      * 
      */
-    country: string;
+    country?: string;
 
     /**
      * 

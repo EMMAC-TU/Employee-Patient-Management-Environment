@@ -1,5 +1,5 @@
 import * as jwt from 'jsonwebtoken';
-import { IEmployee } from "../interfaces/IEmployee";
+import { IEmployee } from "../../../../shared/interfaces/IEmployee";
 
 export function generateToken(user: IEmployee, expires?: number) {
     const expiration = expires ? expires : 1800;

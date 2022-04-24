@@ -17,6 +17,16 @@ export interface IPatient {
     /**
      * 
      */
+    outpatient?: boolean;
+
+    /**
+     * 
+     */
+    dateofbirth?: string;
+
+    /**
+     * 
+     */
     firstName?: string;
 
     /**
@@ -27,12 +37,27 @@ export interface IPatient {
     /**
      * 
      */
-    creationDate?: Date;
+    gender?: string;
+
+    /**
+     * 
+     */
+    creationdate?: Date;
+
+    /**
+     * 
+     */
+    email?: string;
 
     /**
      * 
      */
     middleInitial?: string;
+
+    /**
+     * 
+     */
+    homephone?: string;
 
     /**
      * 
@@ -47,22 +72,17 @@ export interface IPatient {
     /**
      * 
      */
-    insuranceId?: string,
+    insurance_companyname?: string 
     
     /**
      * 
      */
-    companyName?: string,
+    insurance_memberid?: string; 
 
     /**
      * 
      */
-    memberId?: string,
-
-    /**
-     * 
-     */
-    groupNumber?: string,
+    insurance_groupnumber?: string;
 
     /**
      * 
@@ -97,21 +117,16 @@ export interface IPatient {
     /**
      * 
      */
-    nextofkin_id?: string,
-
-    /**
-     * 
-     */
     nok_phonenumber?: string,
 
     /**
      * 
      */
-    nok_firstName?: string,
+    nok_firstname?: string,
 
     /**
      * 
      */
-    nok_lastName?: string,
+    nok_lastname?: string,
 
 }

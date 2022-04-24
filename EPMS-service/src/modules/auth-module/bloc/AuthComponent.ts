@@ -3,8 +3,10 @@ import { BcryptDriver } from "../../../drivers/BcryptDriver";
 import { Employee } from "../../../shared/entity/Employee";
 import { AuthDatastore } from "../datastore/AuthDatastore";
 import { IAuthComponent } from "../interfaces/IAuthComponent";
-import { generateToken } from "../../../shared/functions/GenerateToken";
+import { generateToken } from "./functions/GenerateToken";
 import { IEmployee } from "../../../shared/interfaces/IEmployee";
+import { EmployeeDatastore } from "../../../modules/employee-module/datastore/EmployeeDatastore";
+import { validatePasswordCriteria } from "../../../shared/functions/validator";
 
 export class AuthComponent implements IAuthComponent {
     private static instance: IAuthComponent;
@@ -23,7 +25,11 @@ export class AuthComponent implements IAuthComponent {
      * @param password 
      */
     async doPasswordsMatch(employeeId: string, password: string): Promise<boolean> {
-        throw new Error("Method not implemented.");
+        if ( !(await EmployeeDatastore.getInstance().doesEmployeeExist({ field: 'employeeid', value: employeeId }))) {
+            throw new ResourceError("Employee does not exist", ResourceErrorReason.NOT_FOUND);
+        }
+        const currPassword = await AuthDatastore.getInstance().getPassword(employeeId);
+        return (await this.bcrypt.comparePasswords(password, currPassword));
     }
 
     /**
@@ -32,7 +38,13 @@ export class AuthComponent implements IAuthComponent {
      * @param password 
      */
     async updatePassword(employeeId: string, password: string): Promise<void> {
-        throw new Error("Method not implemented.");
+        if ( !(await EmployeeDatastore.getInstance().doesEmployeeExist({ field: 'employeeid', value: employeeId }))) {
+            throw new ResourceError("Employee does not exist", ResourceErrorReason.NOT_FOUND);
+        }
+        console.log("validating password");
+        validatePasswordCriteria(password);
+        await AuthDatastore.getInstance().updatePassword(employeeId, password);
+        console.log("Password Updated!")
     }
     
     /**
@@ -56,21 +68,6 @@ export class AuthComponent implements IAuthComponent {
         return { employee, token };
     }
     
-    /**
-     * 
-     * @param employee 
-     */
-    async createToken(employee: Employee): Promise<any> {
-        throw new Error("Method not implemented.");
-    }
 
-    /**
-     * 
-     * @param userId 
-     * @param password 
-     */
-    async createLogin(userId: string, password: string): Promise<void> {
-        throw new Error("Method not implemented.");
-    }
     
 }
