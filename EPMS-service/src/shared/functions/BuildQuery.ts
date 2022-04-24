@@ -10,7 +10,7 @@ const employeeReturns = {
 };
 
 const patientReturns = {
-    searchResults: "patientid, dateofbirth, lastname FROM patient",
+    searchResults: "patientid, dateofbirth, lastname",
     allInfo: "patientid, firstname, middleinitial, lastname, gender, dateofbirth, \
     outpatient, height, weight, homephone, mobilephone, workphone, email, \
     streetname1, streetname2, zipcode, city, state, country \

@@ -80,6 +80,12 @@ export class EmployeeComponent implements IEmployeeComponent{
             throw new ResourceError("Employee does not exist", ResourceErrorReason.NOT_FOUND);
         }
         verifyUpdateFields(updatedEmployee, ['employeeid', 'startdate']);
+        if (updatedEmployee.userid) {
+            const employee = (await EmployeeDatastore.getInstance().getEmployee(employeeId))[0] as Employee;
+            if (updatedEmployee.userid === employee.userid){
+                throw new ResourceError('Username is the same', ResourceErrorReason.BAD_REQUEST);
+            }
+        }
         await EmployeeDatastore.getInstance().updateEmployee(employeeId, updatedEmployee);
     }
 

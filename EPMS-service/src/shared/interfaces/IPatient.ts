@@ -117,7 +117,7 @@ export interface IPatient {
     /**
      * 
      */
-    nok_phonenumber?: string,
+    nok_mobilephone?: string,
 
     /**
      * 

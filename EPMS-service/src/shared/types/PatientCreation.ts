@@ -20,7 +20,7 @@ export type PatientCreation = {
     zipcode?: string;
     country?: string;
     streetname2?: string;
-    nok_phonenumber?: string,
+    nok_mobilephone?: string,
     nok_firstname?: string,
     nok_lastname?: string,
 }
