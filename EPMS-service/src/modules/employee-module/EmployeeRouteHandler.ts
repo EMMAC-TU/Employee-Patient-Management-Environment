@@ -46,9 +46,9 @@ export class EmployeeRouteHandler {
         }
     }
 
-    // @Authorized({
-    //     permissions: [PermissionLevels.ADMIN]
-    // })
+    @Authorized({
+        permissions: [PermissionLevels.ADMIN]
+    })
     static async updateEmployee(req: Request, res: Response, next: NextFunction) {
         try {
             if (!req.params.id) {
@@ -105,9 +105,9 @@ export class EmployeeRouteHandler {
      * @param res 
      * @param next 
      */
-    //  @Authorized({
-    //     permissions: [ PermissionLevels.ADMIN ]
-    // })
+     @Authorized({
+        permissions: [ PermissionLevels.ADMIN ]
+    })
     static async createEmployee(req: Request, res: Response, next: NextFunction) {
         const newEmp = req.body as EmployeeCreation
         try{

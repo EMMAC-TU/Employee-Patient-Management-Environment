@@ -24,5 +24,5 @@ RUN chmod -w /usr/src/app
 
 USER node
 
-# CMD ["dumb-init", "node", "-r", "./dist/app.js"]
+CMD ["dumb-init", "node", "-r", "./dist/app.js"]
 EXPOSE 3000
